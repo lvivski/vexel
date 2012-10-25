@@ -19,7 +19,7 @@ function getColorData(ctx, img, multiplier) {
     row *= multiplier
     column *= multiplier
         
-    shadow.push(column +'px '+ row +'px 0 rgba('+ pixels[i] +', '+ pixels[i + 1] +', '+ pixels[i + 2] +', '+ pixels[i + 3] / 255 +')')
+    shadow.push(column +'px '+ row +'px 0 rgba('+ pixels[i] +', '+ pixels[i+1] +', '+ pixels[i+2] +', '+ pixels[i+3]/255 +')')
   }
   
   return {
@@ -34,6 +34,7 @@ function img2anim(header, frames) {
     , style = document.getElementById('result').style
     , multiplier = 4
     , styleSheet = document.styleSheets[0]
+    , loaded = []
     , img, base64encoded, first
     
   var keyframes = ['@-webkit-keyframes frames {']
@@ -44,7 +45,7 @@ function img2anim(header, frames) {
     img = document.createElement('img')
     
     img.onload = (function(i, img) {
-      return function() {  
+      return function() {
         canvas.setAttribute('width', img.width)
         canvas.setAttribute('height', img.height)
         
@@ -53,23 +54,23 @@ function img2anim(header, frames) {
         if (i === 0) first = data
 
         keyframes.push(Math.round(i * 100 / len) +'%{background:'+ data.color +';box-shadow:'+ data.shadow +'}')
+        
+        if (loaded.push(i) === len) {
+          keyframes.push('}')
+          styleSheet.insertRule(keyframes.join('\n'), 0 )
+    
+          style.width  = multiplier + 'px'
+          style.height = multiplier + 'px'
+          style.background = first.color
+          style.boxShadow = first.shadow
+          style.WebkitTransform = 'translate3d(0,0,0)'
+          style.WebkitAnimation = 'frames '+ len * 0.1 +'s linear infinite'
+        }
       }
     }(i, img))
     
     img.src = base64encoded
   }
-  
-  setTimeout(function(){
-    keyframes.push('}')
-    styleSheet.insertRule(keyframes.join('\n'), 0 )
-    
-    style.width  = multiplier + 'px'
-    style.height = multiplier + 'px'
-    style.background = first.color
-    style.boxShadow = first.shadow
-    style.WebkitTransform = 'translate3d(0,0,0)'
-    style.WebkitAnimation = 'frames '+ len * 0.1 +'s linear infinite'
-  }, 1000)
 }
 
 function img2vexel(base64img) {
