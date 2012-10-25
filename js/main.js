@@ -31,10 +31,12 @@ function getColorData(ctx, img, multiplier) {
 function img2anim(header, frames) {
   var canvas = document.createElement('canvas')
     , ctx = canvas.getContext('2d')
-    , result = document.getElementById('result')
+    , style = document.getElementById('result').style
     , multiplier = 4
     , styleSheet = document.styleSheets[0]
-    , img, base64encoded
+    , img, base64encoded, first
+    
+  var keyframes = ['@-webkit-keyframes frames {']
         
   for (var i = 0, len = frames.length; i < len; i++) {
     base64encoded = 'data:image/gif;base64,' + btoa(arr2str(header) + arr2str(frames[i]))
@@ -47,8 +49,10 @@ function img2anim(header, frames) {
         canvas.setAttribute('height', img.height)
         
         var data = getColorData(ctx, img, multiplier)
-      
-        styleSheet.insertRule('.frame'+ i +'{background:'+ data.color +';box-shadow:'+ data.shadow +'}', i )
+        
+        if (i === 0) first = data
+
+        keyframes.push(Math.round(i * 100 / len) +'%{background:'+ data.color +';box-shadow:'+ data.shadow +'}')
       }
     }(i, img))
     
@@ -56,34 +60,23 @@ function img2anim(header, frames) {
   }
   
   setTimeout(function(){
-    result.style.width  = multiplier + 'px'
-    result.style.height = multiplier + 'px'
+    keyframes.push('}')
+    styleSheet.insertRule(keyframes.join('\n'), 0 )
     
-    i = 0
-    
-    function loop(){
-      result.classList.remove('frame' + (i-1))
-      if (frames[i]) {
-        result.classList.add('frame' + i)
-        ;++i
-      } else {
-        i = 0
-        result.classList.add('frame' + i)
-      }
-      setTimeout(loop, 100)
-    }
-    
-    loop()
-
-  }, 0)
+    style.width  = multiplier + 'px'
+    style.height = multiplier + 'px'
+    style.background = first.color
+    style.boxShadow = first.shadow
+    style.WebkitTransform = 'translate3d(0,0,0)'
+    style.WebkitAnimation = 'frames '+ len * 0.1 +'s linear infinite'
+  }, 1000)
 }
 
 function img2vexel(base64img) {
   var img = document.createElement('img')
     , canvas = document.createElement('canvas')
     , ctx = canvas.getContext('2d')
-    , result = document.getElementById('result')
-    , style = result.style
+    , style = document.getElementById('result').style
     , multiplier = 4
     , shadow = []
     
@@ -106,6 +99,10 @@ function handleFileSelect(evt) {
   var files = evt.target.files
     , f = files[0]
     , reader = new FileReader()
+  try {  
+    document.getElementById('result').style.cssText = ''
+    document.styleSheets[0].deleteRule(0)
+  } catch(e) {}
     
   if (!f.type.match('image.*')) return
   
