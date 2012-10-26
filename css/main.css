@@ -1,3 +1,54 @@
-#result {
-  display:block;
+html {
+  height: 100%
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%
+}
+
+#vexel {
+  margin: 15px;
+}
+
+#dropzone {
+  border: 4px dashed #113;
+  border-radius: 5px;
+  padding: 25px;
+  text-align: center;
+  font: bold 25px Arial, Tahoma, sans-serif;
+  color: #113;
+  margin: 15px;
+}
+
+#dropzone.over {
+  border-color: #c00;
+  color: #c00;
+}
+
+#input {
+  background-color: #fff;
+  background-image: -webkit-linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%), 
+  -webkit-linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%);
+  background-size:16px 16px;
+  background-position:0 0, 8px 8px;
+  height: 100%;
+  width:50%;
+  float:left;
+  box-shadow: inset -25px 0 25px -25px #000
+}
+
+#stylesheet {
+  background: #fff;
+  width:49%;
+  float: right;
+  height: 100%;
+  color: black;
+  font: 13px/1.8 Monaco, Mono-Space;
+  white-space: pre;
+  margin: 0;
+  margin-left: 1%;
+  padding: 0;
+  overflow: scroll
 }
