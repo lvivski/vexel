@@ -173,7 +173,7 @@ function img2anim(imgData) {
           , 'width:'+ multiplier +'px;'
           , 'height:'+ multiplier +'px;'
           , '-webkit-transform:translate3d(0,0,0);'
-          , '-webkit-animation:frames '+ len * 0.1 +'s linear infinite'
+          , '-webkit-animation:frames '+ len * 0.1 +'s steps('+ len +', end) infinite'
           , '}'
           ].join('\n'), 1)
           
