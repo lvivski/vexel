@@ -3,10 +3,12 @@
 var dropZone = document.getElementById('dropzone')
 
 dropZone.addEventListener('dragenter', handleDragEnter, false)
+dropZone.addEventListener('dragover', handleDragEnter, false)
 dropZone.addEventListener('dragleave', handleDragLeave, false)
-dropZone.addEventListener('drop', handleFileSelect, false)
+dropZone.addEventListener('drop', handleFileSelect, true)
 
 function handleDragEnter(e) {
+  e.preventDefault()
   e.target.classList.add('over')
 }
 
