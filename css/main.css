@@ -10,6 +10,11 @@ body {
 }
 
 header {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 4.5em;
   background: -webkit-linear-gradient(#666, #333);
 }
 
@@ -20,23 +25,16 @@ h1 {
   margin: 15px;
 }
 
-#vexel {
-  margin: 15px;
+h3 {
+  display: inline-block;
+  color: #F3F3F3;
 }
 
-#dropzone {
-  border: 4px dashed #113;
-  border-radius: 5px;
-  padding: 25px;
-  text-align: center;
-  font: bold 25px Arial, Tahoma, sans-serif;
-  color: #113;
-  margin: 15px;
-}
-
-#dropzone.over {
-  border-color: #c00;
-  color: #c00;
+#wrapper {
+  height: 100%;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  padding-top: 4.5em;
 }
 
 #input {
@@ -57,10 +55,32 @@ h1 {
   float: right;
   height: 100%;
   color: black;
-  font: 13px/1.8 Monaco, Mono-Space;
-  white-space: pre;
   margin: 0;
   margin-left: 1%;
   padding: 0;
   overflow: scroll
+}
+
+code {
+  font: 13px/1.8 Monaco, Mono-Space;
+  white-space: pre;
+}
+
+#vexel {
+  margin: 15px;
+}
+
+#dropzone {
+  border: 4px dashed #113;
+  border-radius: 5px;
+  padding: 25px;
+  text-align: center;
+  font: bold 25px Arial, Tahoma, sans-serif;
+  color: #113;
+  margin: 15px;
+}
+
+#dropzone.over {
+  border-color: #c00;
+  color: #c00;
 }

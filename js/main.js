@@ -75,10 +75,11 @@ function renderStylesheet() {
   }
   var frag = document.createDocumentFragment()
   list.forEach(function(e){
-    var span = document.createElement("span")
-    span.textContent = e
-    frag.appendChild(span)
+    var code = document.createElement('code')
+    code.textContent = e
+    frag.appendChild(code)
   })
+  document.getElementById('stylesheet').innerHTML = ''
   document.getElementById('stylesheet').appendChild(frag)
 }
 
@@ -105,8 +106,8 @@ function getFrames(data) {
   }
 
   return {
-    header: header
-  , frames: frames
+    header: header,
+    frames: frames
   }
 }
 
