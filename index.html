@@ -13,6 +13,12 @@
   <header>
     <h1>Vexel</h1>
     <h3>Redraw any image with pure CSS!</h3>
+    <div class="social">
+      <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://lvivski.github.com/vexel" data-via="lvivski" data-size="large">Tweet</a>
+      <div class="g-plusone" data-href="http://lvivski.github.com/vexel"></div>
+      <iframe src="http://ghbtns.com/github-btn.html?user=lvivski&type=follow&size=large"
+        allowtransparency="true" frameborder="0" scrolling="0" width="160" height="30"></iframe>
+    </div>
   </header>
   <div id="wrapper">
     <div id="input">
@@ -25,5 +31,29 @@
     </output>
   </div>
   <script src="js/main.js"></script>
+  <script type="text/javascript">
+    var _gaq = [['_setAccount', 'UA-38504491-2'],['_trackPageview']],
+        d = document,
+        head = d.getElementsByTagName('head')[0],
+        s = 'script'
+        
+    g('//www.google-analytics.com/ga.js')
+    g('https://apis.google.com/js/plusone.js')
+    b('//platform.twitter.com/widgets.js', 'twitter-wjs')
+        
+    function g(url) {
+      var js = d.createElement(s)
+      js.type = 'text/javascript';js.async = true
+      js.src = url
+      head.appendChild(js)
+    }
+       
+    function b(url, id) {
+      if (d.getElementById(id)) return      
+      var js = d.createElement(s);js.id = id
+      js.src = url
+      head.appendChild(js)
+    }
+  </script>
 </body>
 </html>

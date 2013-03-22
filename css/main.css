@@ -84,3 +84,8 @@ code {
   border-color: #c00;
   color: #c00;
 }
+
+.social {
+  float:right;
+  padding: 15px;
+}
