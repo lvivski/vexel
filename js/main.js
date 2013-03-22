@@ -20,18 +20,18 @@ function handleFileSelect(e) {
   e.stopPropagation()
   e.preventDefault()
   e.target.classList.remove('over')
-  
-  var files = files = e.dataTransfer.files
-    , f = files[0]
-    , reader = new FileReader()
-    , cb, fn
+
+  var files = files = e.dataTransfer.files,
+      f = files[0],
+      reader = new FileReader(),
+      cb, fn
   try {
     document.styleSheets[0].deleteRule(0)
     document.styleSheets[0].deleteRule(1)
   } catch(e) {}
-    
+
   if (!f.type.match('image.*')) return
-  
+
   if (f.type.match('.*gif')) {
     cb = img2anim
     fn = 'readAsArrayBuffer'
@@ -39,13 +39,13 @@ function handleFileSelect(e) {
     cb = img2vexel
     fn = 'readAsDataURL'
   }
-  
+
   reader.onload = (function(f, cb) {
     return function(e) {
       cb(e.target.result)
     }
   })(f, cb)
-  
+
   reader[fn](f)
 }
 
@@ -54,16 +54,13 @@ function atos(a) {
 }
 
 function preText(text) {
-  return text.split('; ').join(';\n  ')
-             .split('{ ').join('{\n  ')
-             .split('}').join('}\n')
-             .split(', rgb').join(',\n              rgb') // 14 spaces for "  box-shadow: "
+  return text.replace(/([;{}])\s/g, '$1\n').replace(/,\srgb/g, ',\n  rgb')
 }
 
 function renderStylesheet() {
-  var styleSheet = document.styleSheets[0]
-    , list = []
-    , rule
+  var styleSheet = document.styleSheets[0],
+      list = [],
+      rule
   for (i = 0, len = styleSheet.cssRules.length; i < len; i++) {
     rule = styleSheet.cssRules[i]
     if (rule.type === 7) { // keyframes
@@ -86,15 +83,15 @@ function renderStylesheet() {
 }
 
 function getFrames(data) {
-  var arr = new Uint8Array(data)
-    , frames = []
-    , header = []
+  var arr = new Uint8Array(data),
+      frames = [],
+      header = []
   for(var i = 0, len = arr.length; i < len; i++) {
     if (arr[i] === 0x00 &&
         arr[i+1] === 0x21 &&
         arr[i+2] === 0xF9 &&
         arr[i+3] === 0x04 &&
-    		arr[i+8] === 0x00 && 
+    		arr[i+8] === 0x00 &&
     		(arr[i+9] === 0x2C || arr[i+9] === 0x21))
     {
       frames[frames.length] = [arr[i]]
@@ -106,7 +103,7 @@ function getFrames(data) {
       }
     }
   }
-  
+
   return {
     header: header
   , frames: frames
@@ -114,23 +111,33 @@ function getFrames(data) {
 }
 
 function getColorData(ctx, img, multiplier) {
-  ctx.drawImage(img, 0, 0)
-  
-  var imageData = ctx.getImageData(0, 0, img.width, img.height)
-    , pixels = imageData.data
-    , shadow = []
-    , colum, row
-      
+  var width = img.width,
+      height = img.height,
+      max = Math.max(width, height),
+      ratio = max > 128 ? 128 / max : 1
+
+  width *= ratio
+  height *= ratio
+
+  ctx.canvas.setAttribute('width', width)
+  ctx.canvas.setAttribute('height', height)
+  ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, width, height)
+
+  var imageData = ctx.getImageData(0, 0, width, height),
+      pixels = imageData.data,
+      shadow = [],
+      colum, row
+
   for (var i = 4, len = pixels.length; i < len; i += 4) {
-    row = Math.floor(i / 4 / img.width)
-    column = i / 4 % img.width
-        
+    row = Math.floor(i / 4 / width)
+    column = i / 4 % width
+
     row *= multiplier
     column *= multiplier
-        
+
     shadow.push(column +'px '+ row +'px 0 rgba('+ pixels[i] +', '+ pixels[i+1] +', '+ pixels[i+2] +', '+ pixels[i+3]/255 +')')
   }
-  
+
   return {
     color: 'rgba('+ pixels[0] +', '+ pixels[1] +', '+ pixels[2] +', '+ pixels[3] / 255 +')',
     shadow: shadow.join(',')
@@ -138,83 +145,79 @@ function getColorData(ctx, img, multiplier) {
 }
 
 function img2anim(imgData) {
-  var canvas = document.createElement('canvas')
-    , ctx = canvas.getContext('2d')
-    , multiplier = 4
-    , styleSheet = document.styleSheets[0]
-    , loaded = []
-    , data = getFrames(imgData)
-    , header = data.header
-    , frames = data.frames
-    , img, base64encoded, first
-    
+  var ctx = document.createElement('canvas').getContext('2d'),
+      multiplier = 4,
+      styleSheet = document.styleSheets[0],
+      loaded = [],
+      data = getFrames(imgData),
+      header = data.header,
+      frames = data.frames,
+      img, base64encoded, first
+
   var keyframes = ['@-webkit-keyframes frames {']
-        
+
   for (var i = 0, len = frames.length; i < len; i++) {
     base64encoded = 'data:image/gif;base64,' + btoa(atos(header) + atos(frames[i]))
-    
+
     img = document.createElement('img')
-    
+
     img.onload = (function(i, img) {
       return function() {
-        canvas.setAttribute('width', img.width)
-        canvas.setAttribute('height', img.height)
-        
         var data = getColorData(ctx, img, multiplier)
-        
+
         if (i === 0) first = data
 
         keyframes.push(Math.round(i * 100 / (len - 1)) +'%{background:'+ data.color +';box-shadow:'+ data.shadow +'}')
-        
+
         if (loaded.push(i) === len) {
           keyframes.push('}')
           styleSheet.insertRule(keyframes.join('\n'), 0 )
           styleSheet.insertRule([
-            '#vexel {'
-          , 'display: block;'
-          , 'width:'+ multiplier +'px;'
-          , 'height:'+ multiplier +'px;'
-          , '-webkit-transform:translate3d(0,0,0);'
-          , '-webkit-animation:frames '+ len * 0.1 +'s steps('+ len +', end) infinite'
-          , '}'
+            '#vexel {',
+            'display: block;',
+            'width:'+ multiplier +'px;',
+            'height:'+ multiplier +'px;',
+            '-webkit-transform:translate3d(0,0,0);',
+            '-webkit-animation:frames '+ len * 0.1 +'s steps('+ len +', end) infinite',
+            '}'
           ].join('\n'), 1)
-          
+
           renderStylesheet()
         }
       }
     }(i, img))
-    
+
     img.src = base64encoded
   }
 }
 
 function img2vexel(base64img) {
-  var img = document.createElement('img')
-    , canvas = document.createElement('canvas')
-    , ctx = canvas.getContext('2d')
-    , styleSheet = document.styleSheets[0]
-    , multiplier = 4
-    , shadow = []
-    
+  var img = document.createElement('img'),
+      canvas = document.createElement('canvas'),
+      ctx = canvas.getContext('2d'),
+      styleSheet = document.styleSheets[0],
+      multiplier = 4,
+      shadow = []
+
   img.onload = function() {
     canvas.setAttribute('width', img.width)
     canvas.setAttribute('height', img.height)
-    
+
     var data = getColorData(ctx, img, multiplier)
-    
+
     styleSheet.insertRule([
-      '#vexel {'
-    , 'display: block;'
-    , 'width:'+ multiplier +'px;'
-    , 'height:'+ multiplier +'px;'
-    , 'background:'+ data.color +';'
-    , 'box-shadow:'+ data.shadow
-    , '}'
+      '#vexel {',
+      'display: block;',
+      'width:'+ multiplier +'px;',
+      'height:'+ multiplier +'px;',
+      'background:'+ data.color +';',
+      'box-shadow:'+ data.shadow,
+      '}'
     ].join('\n'), 0)
-    
+
     renderStylesheet()
   }
-    
+
   img.src = base64img
 }
 
