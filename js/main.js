@@ -9,17 +9,17 @@ dropZone.addEventListener('drop', handleFileSelect, true)
 
 function handleDragEnter(e) {
   e.preventDefault()
-  e.target.classList.add('over')
+  e.target.className = 'over'
 }
 
 function handleDragLeave(e) {
-  e.target.classList.remove('over')
+  e.target.className = ''
 }
 
 function handleFileSelect(e) {
   e.stopPropagation()
   e.preventDefault()
-  e.target.classList.remove('over')
+  e.target.className = ''
 
   var files = files = e.dataTransfer.files,
       f = files[0],
@@ -54,7 +54,7 @@ function atos(a) {
 }
 
 function preText(text) {
-  return text.replace(/([;{}])\s/g, '$1\n').replace(/,\srgb/g, ',\n  rgb')
+  return text.replace(/([;{}])\s?/g, '$1\n').replace(/,\srgb/g, ',\n  rgb').replace(/ent,/g, 'ent,\n  ').replace(/\),/g, '),\n  ')
 }
 
 function renderStylesheet() {
@@ -153,9 +153,12 @@ function img2anim(imgData) {
       data = getFrames(imgData),
       header = data.header,
       frames = data.frames,
+      prefix = Array.prototype.slice.call(
+          getComputedStyle(document.documentElement, null)
+        ).join('').match(/-(moz|webkit|ms)-/)[0] || '',
       img, base64encoded, first
 
-  var keyframes = ['@-webkit-keyframes frames {']
+  var keyframes = ['@' + prefix + 'keyframes frames {']
 
   for (var i = 0, len = frames.length; i < len; i++) {
     base64encoded = 'data:image/gif;base64,' + btoa(atos(header) + atos(frames[i]))
@@ -178,8 +181,8 @@ function img2anim(imgData) {
             'display: block;',
             'width:'+ multiplier +'px;',
             'height:'+ multiplier +'px;',
-            '-webkit-transform:translate3d(0,0,0);',
-            '-webkit-animation:frames '+ len * 0.1 +'s steps('+ len +', end) infinite',
+            prefix + 'transform:translate3d(0,0,0);',
+            prefix + 'animation:frames '+ len * 0.1 +'s steps('+ len +', end) infinite',
             '}'
           ].join('\n'), 1)
 
