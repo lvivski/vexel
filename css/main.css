@@ -30,6 +30,10 @@ h3 {
   color: #F3F3F3;
 }
 
+h1, h3 {
+  font-weight: normal;
+}
+
 #wrapper {
   height: 100%;
   box-sizing: border-box;
